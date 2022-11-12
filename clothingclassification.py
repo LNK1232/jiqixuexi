@@ -5,7 +5,6 @@ import torch
 from matplotlib import pyplot as plt
 import torch.utils.data
 import torch.nn.functional as F
-import numpy as np
 import os
 import csv
 
@@ -22,11 +21,12 @@ print("训练集的条数", len(train_dataset))
 
 # 读取测试集数据
 val_dataset = torchvision.datasets.FashionMNIST(root=data_dir, train=False, transform=transform)
+#  pd.read_csv('fashion-mnist_test_data.csv')
 print("测试集的条数", len(val_dataset))
 
 # 按批次封装FashionMNIST数据集
 batch_size1 = 10  # 训练集批次大小
-batch_size2 = 10  # 测试集批次大小
+batch_size2 = 10000  # 测试集批次大小
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size1, shuffle=True)
 test_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size2, shuffle=False)
 
@@ -120,7 +120,7 @@ if __name__ == '__main__':
             _, predicted = torch.max(outputs, 1)  # 计算预测结果,_返回最大可信度，predicted返回预测的标签
             predicted = predicted.to(device)
             c = (predicted == labels).squeeze()  # 统计正确的个数
-            for i in range(10):  # 遍历所有类别
+            for i in range(10000):  # 遍历所有类别
                 label = labels[i]
                 class_correct[label] = class_correct[label] + c[i].item()  # 若该类别正确则+1
                 class_total[label] = class_total[label] + 1  # 根据标签中的类别，计算类的总数
@@ -131,12 +131,11 @@ if __name__ == '__main__':
         sumacc = sumacc + Accuracy
     print('Accuracy of all : %2d %%' % (sumacc / 10.))  # 输出最终的准确率
 
-    list = []
-    for data in test_loader:
-        for i in range(10):
-            label = str(predicted[i])[7]
-            list.append([i, label])
-    with open("result.csv", "w", newline='') as csvfile:
+list = []
+for i in range(10000):
+        out = str(predicted[i])[7]
+        list.append([str(i)+".jpg", out])
+with open("result.csv", "w", newline='') as csvfile:
         writer = csv.writer(csvfile)
-        # 写入多行用writerows
+    # 写入多行用writerows
         writer.writerows(list)
