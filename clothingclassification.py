@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import pandas as pd
 import torchvision
 import torchvision.transforms as transforms
@@ -53,16 +54,16 @@ class Net(torch.nn.Module):
         self.layer1 = nn.Sequential(
             nn.Conv2d(1, 16, kernel_size=5, padding=2),
             nn.BatchNorm2d(16),
-            nn.Softmax())  # 16, 28, 28
+            nn.Sigmoid())  # 16, 28, 28
         self.pool1 = nn.MaxPool2d(2)  # 16, 14, 14
         self.layer2 = nn.Sequential(
             nn.Conv2d(16, 32, kernel_size=3),
             nn.BatchNorm2d(32),
-            nn.Softmax())  # 32, 12, 12
+            nn.Sigmoid())  # 32, 12, 12
         self.layer3 = nn.Sequential(
             nn.Conv2d(32, 64, kernel_size=3),
             nn.BatchNorm2d(64),
-            nn.Softmax())  # 64, 10, 10
+            nn.Sigmoid ())  # 64, 10, 10
         self.pool2 = nn.MaxPool2d(2)  # 64, 5, 5
         self.fc = nn.Linear(5 * 5 * 64, 10)
 
@@ -92,7 +93,10 @@ if __name__ == '__main__':
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(network.parameters(), lr=0.01)
     # 训练模型
-    for epoch in range(200):  # 数据集迭代20次
+    rounds=200
+    count = 0
+    a = np.zeros(rounds * 6)
+    for epoch in range(rounds):  # 数据集迭代20次
         running_loss = 0.0
         for i, data in enumerate(train_loader):  # 循环取出批次数据
             inputs, labels = data
@@ -105,8 +109,13 @@ if __name__ == '__main__':
             running_loss += loss.item()
             if i % 1000 == 999:
                 print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 2000))
+                      (epoch + 1, i + 1, running_loss /1000 ))
+                a[count]=running_loss/1000
+                count=count+1
                 running_loss = 0.0
+    print(a)
+    plt.plot(a)
+    plt.show()
     print('Finished Training')
     # 保存模型
     torch.save(network.state_dict(), './models/CNNFashionMNist.PTH')
